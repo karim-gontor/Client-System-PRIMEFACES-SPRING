@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<!--La "h" indica que se administra por jsf-->
+<h:html xmlns:h="http://xmlns.jcp.org/jsf/html"
+        xmlns:f="http://xmlns.jcp.org/jsf/core"
+        xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Client System</title>
+        <link rel="stylesheet" href="https://unpkg.com/primeflex@latest/primeflex.css" />
+    </h:head>
+    <h:body>
+        <div class="card">
+            <h:form id="forma-clientes">
+<!--                Nos permite mostrar mensajes -->
+                <p:growl id="mensajes" showDetails="true"/>
+                <div class="card">
+                    <p:menubar>
+                        <p:menuitem
+                                value="Inicio"
+                                icon="pi pi-fw pi-user"
+                                update=":forma-clientes:clientes-tabla"
+                                actionListener="#{indexControlador.cargarDatos}"/>
+                        <p:menuitem
+                                value="Nuevo Cliente"
+                                icon="pi pi-fw pi-plus"
+                                update=":forma-modal:cliente-ventana"
+                                oncomplete="PF('ventanaModalCliente').show()"
+                                actionListener="#{indexControlador.agregarCliente}"/>
+                    </p:menubar>
+                </div>
+                <div class="card">
+                    <p:dataTable value="#{indexControlador.clientes}"
+                                 var="cliente"
+                                 id="clientes-tabla"
+                                 widgetVar="clientesTabla">
+                        <f:facet name="header">
+                            <div class="flex justify-content-center
+                                        flex-wrap card-container yellow-container">
+                                <div class="flex align-items-center justify-content-center
+                                            w-20rem h-4rem bg-yellow-500 font-bold
+                                            text-gray-900 border-round m-2">
+
+                                    <h3>Client System</h3>
+                                </div>
+                            </div>
+                        </f:facet>
+
+                        <p:column headerText="Id">
+                            <h:outputText value="#{cliente.id}" />
+                        </p:column>
+
+                        <p:column headerText="Nombre">
+                            <h:outputText value="#{cliente.nombre}" />
+                        </p:column>
+
+                        <p:column headerText="Apellido">
+                            <h:outputText value="#{cliente.apellido}" />
+                        </p:column>
+
+                        <p:column headerText="Membresía">
+                            <h:outputText value="#{cliente.membresia}" />
+                        </p:column>
+
+                        <p:column>
+                            <!-- Botton de editar -->
+                            <p:commandButton value="Editar" icon="pi pi-pencil"
+                                             update=":forma-modal:cliente-ventana"
+                                             process="@this"
+                                             oncomplete="PF('ventanaModalCliente').show()"
+                                             class="ui-button-primary"
+                                             style="margin-right: .5rem">
+
+                                <!-- Sirve para asginar el valor del cliente actual
+                                a la var clienteSeleccionado en el controlador -->
+                                <f:setPropertyActionListener
+                                    value="#{cliente}"
+                                    target="#{indexControlador.clienteSeleccionado}"/>
+                                <!-- Reset de la info del modal -->
+                                <p:resetInput target=":forma-modal:cliente-ventana"/>
+                            </p:commandButton>
+
+                            <!-- Botton de eliminar -->
+                            <p:commandButton value="Eliminar" icon="pi pi-trash"
+                                             class="ui-button-danger"
+                                             process="@this"
+                                             oncomplete="PF('eliminarClienteVentana').show()">
+                                <f:setPropertyActionListener
+                                    value="#{cliente}"
+                                    target="#{indexControlador.clienteSeleccionado}"/>
+
+                            </p:commandButton>
+
+                        </p:column>
+
+                    </p:dataTable>
+                </div>
+            </h:form>
+            <h:form id="forma-modal">
+                <p:dialog header="Detalles Cliente" showEffect="fade"
+                          modal="true" widgetVar="ventanaModalCliente"
+                          responsive="true">
+                    <p:outputPanel id="cliente-ventana" class="ui-fluid">
+                        <div class="field">
+                            <p:outputLabel for="nombre">Nombre</p:outputLabel>
+                            <p:inputText id="nombre"
+                                         value="#{indexControlador.clienteSeleccionado.nombre}"
+                                         required="true"/>
+
+                        </div>
+                        <div class="field">
+                            <p:outputLabel for="apellido">Apellido</p:outputLabel>
+                            <p:inputText id="apellido"
+                                         value="#{indexControlador.clienteSeleccionado.apellido}"
+                                         required="true"/>
+
+                        </div>
+                        <div class="field">
+                            <p:outputLabel for="membresia">Membresia</p:outputLabel>
+                            <p:inputText id="membresia"
+                                         value="#{indexControlador.clienteSeleccionado.membresia}"
+                                         required="true"/>
+
+                        </div>
+                    </p:outputPanel>
+                    <f:facet name="footer">
+                        <p:commandButton value="Guardar" icon="pi pi-check"
+                                         process="cliente-ventana @this"
+                                         actionListener="#{indexControlador.guardarCliente}"/>
+                        <p:commandButton value="Cancelar" icon="pi pi-times"
+                                         onclick="PF('ventanaModalCliente').hide()"
+                                         class="ui-button-secondary"
+                                         type="button"/>
+                    </f:facet>
+                </p:dialog>
+
+                <!-- Modal de confirmacion al eliminar -->
+                <p:confirmDialog widgetVar="eliminarClienteVentana"
+                                 showEffect="fade" width="300"
+                                 message="Eliminar el cliente?"
+                                 header="Confirmar" severity="warn">
+                    <!--Botton de eliminar -->
+                    <p:commandButton value="Si" icon="pi pi-check"
+                                     process="@this"
+                                     actionListener="#{indexControlador.eliminarCliente}"
+                                     oncomplete="PF('eliminarClienteVentana').hide()"/>
+                    <!--Botton de cancelar -->
+                    <p:commandButton value="No" type="button" icon="pi pi-times"
+                                     onclick="PF('eliminarClienteVentana').hide()"/>
+                </p:confirmDialog>
+            </h:form>
+        </div>
+
+    </h:body>
+</h:html>
